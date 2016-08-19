@@ -22,7 +22,7 @@ resource "aws_route" "internet_access_terraform_two_tier" {
 }
 
 # Create a subnet to launch our instances into
-resource "aws_subnet" "default" {
+resource "aws_subnet" "default_tf_two_tier" {
   availability_zone = "us-east-1d" # * aws_instance.web_terraform_two_tier: Error launching source instance: InvalidParameterValue: Value (us-east-1d) for parameter availabilityZone is invalid. Subnet 'subnet-6f988552' is in the availability zone us-east-1e # status code: 400, request id: 31134f59-41b2-4219-ac5c-6bafd2abd76a
   vpc_id                  = "${aws_vpc.default_terraform_two_tier.id}"
   cidr_block              = "10.0.1.0/24"
@@ -88,7 +88,7 @@ resource "aws_security_group" "default_terraform_two_tier" {
 resource "aws_elb" "web_terraform_two_tier" {
   name = "terraform-example-elb"
 
-  subnets         = ["${aws_subnet.default.id}"]
+  subnets         = ["${aws_subnet.default_tf_two_tier.id}"]
   security_groups = ["${aws_security_group.elb.id}"]
   instances       = ["${aws_instance.web_terraform_two_tier.id}"]
 
@@ -135,7 +135,7 @@ resource "aws_instance" "web_terraform_two_tier" {
   # We're going to launch into the same subnet as our ELB. In a production
   # environment it's more common to have a separate private subnet for
   # backend instances.
-  subnet_id = "${aws_subnet.default.id}"
+  subnet_id = "${aws_subnet.default_tf_two_tier.id}"
 
   # We run a remote provisioner on the instance after creating it.
   # In this case, we just install nginx and start it. By default,
@@ -153,4 +153,3 @@ resource "aws_instance" "web_terraform_two_tier" {
     ]
   }
 }
-
